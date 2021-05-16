@@ -5,7 +5,7 @@ const sendButton = document.getElementById('send-button')
 const messageContainer = document.getElementById('message-container')
 
 
-const socket = io('http://localhost/3000')
+const socket = io()
 
 socket.on('server-message', message => {
     console.log(message)

@@ -17,7 +17,7 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
-const server = require('http').createServer()
+const server = require('http').createServer(app)
 const io = require('./socket').init(server)
 io.on('connection', socket => {
     console.log('client!Z')
@@ -54,7 +54,7 @@ mongoose
                     user.save()
                 }
             })
-        app.listen(3000)
-    })
-    .catch(e => console.log(e))
-
+        })
+        .catch(e => console.log(e))
+        
+        server.listen(3000)
