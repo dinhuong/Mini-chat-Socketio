@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    </head>
+    
+    <body>
+        <h1>Search friend:</h1>
+        <form action="/chat" method="POST">
+            <input type="hidden" id="userId" value="<%= user._id %>">
+            <input type="text" name="username" id="username">
+            <button type="submit" id="send">Search</button>
+        </form>
+
+    </body>
+</html>

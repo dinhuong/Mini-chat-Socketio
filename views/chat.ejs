@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+</head>
+
+<body>
+    <h1>Chat with <%= receiver.username %>
+    </h1>
+    <div id="chat-container">
+        <!-- <% for (let message in chat) { %>
+            <% console.log(message) %>
+            <div id="message">
+                <% if (message.creator==sender._id) { %>
+                    <p>
+                        <%= sender.username %>
+                    </p>
+                    <$ } else { $>
+                        <p>
+                            <%= receiver.username %>
+                        </p>
+                        <% } %>
+                            <p>
+                                <%= message.content%>
+                            </p>
+            </div>
+            <% } %> -->
+    </div>
+    <input type="hidden" id="sendId" value="<%= sender._id %>">
+    <input type="hidden" id="recvId" value="<%= receiver._id %>">
+    <input type="text" name="message-input" id="message-input">
+    <button type="button" id="send-button" onclick="sendMessage()">Send</button>
+
+    <script src="../socket.io/socket.io.js"></script>
+
+    <script defer src="../script.js"></script>
+</body>
+
+</html>
