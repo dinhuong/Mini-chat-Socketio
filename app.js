@@ -10,19 +10,11 @@ const User = require('./models/user')
 
 const chatRouter = require('./routes/chat');
 const authRouter = require('./routes/auth')
-//const socket = require('./socket')
 
 const app = express();
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
-
-const server = require('http').createServer(app)
-const io = require('./socket').init(server)
-io.on('connection', socket => {
-    console.log('client!Z')
-    socket.emit('server-message', 'Client connected!')
-})
 
 app.use(bodyParser(urlencoded({ extended: false })))
 
@@ -54,7 +46,24 @@ mongoose
                     user.save()
                 }
             })
-        })
-        .catch(e => console.log(e))
-        
-        server.listen(3000)
+            .catch(e => console.log(e))
+    })
+
+
+const server = app.listen(3000)
+const io = require('./socket').init(server)
+const socketRouter = require('./routes/socket')
+io.on('connection', socket => {
+    console.log('client!')
+    socket.emit('server-message', 'Client connected!')
+
+    socket.on('USER_ONLINE', chatId => {
+        socket.join(chatId)
+        io.to(chatId).emit('a new user join the room')
+    })
+
+    socket.on('SEND_MESSAGE', (chatId, msg) => {
+        console.log('message: ', msg)
+        io.to(chatId).emit('NEW_MESSAGE', msg)
+    })
+})

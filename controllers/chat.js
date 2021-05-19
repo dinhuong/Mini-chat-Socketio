@@ -27,16 +27,17 @@ exports.getChatUser = (req, res, next) => {
             if (!chat) {
                 messages = []
             } else {
-                messages = await Chat.findById(chat._id).messages
+                messages = await Chat.findById(chat.chatId).messages
                 if (!messages) {
                     messages = []
                 }
             }
-            console.log(messages)
+            console.log("message: ", messages)
+            console.log("room: ", chat.chatId)
             res.render('chat', {
                 sender: req.session.user,
                 receiver: partner,
-                chat: messages //[message]
+                chatId: chat.chatId
             })
         })
         .catch(e => console.log(e))
@@ -87,7 +88,6 @@ exports.postSendMessage = (req, res, next) => {
                         const chat = await Chat.findById(existChat.chatId)
                         chat.messages = [...updateMessages]
                         await chat.save()
-                        io.getIO().emit('new-message', newMessage)
                         
                         res.status(200)
                     })
