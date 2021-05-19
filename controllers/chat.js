@@ -88,7 +88,7 @@ exports.postSendMessage = (req, res, next) => {
                         const chat = await Chat.findById(existChat.chatId)
                         chat.messages = [...updateMessages]
                         await chat.save()
-                        io.getIO().to(existChat.chatId).emit("NEW_MASSGE", newMessage)
+                        
                         res.status(200)
                     })
                     .catch(e => console.log(e))
