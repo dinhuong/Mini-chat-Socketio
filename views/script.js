@@ -33,22 +33,22 @@ function sendMessage() {
     const sendId = document.getElementById('sendId').value
     const msg = document.getElementById('message-input').value
     
-    fetch('/chat/' + room, {
-        method: 'POST',
-        body: JSON.stringify({
-            creator: sendId,
-            content: msg
-        }),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-        .then(result => {
-            console.log('result')
+    // fetch('/chat/' + room, {
+    //     method: 'POST',
+    //     body: JSON.stringify({
+    //         creator: sendId,
+    //         content: msg
+    //     }),
+    //     headers: {
+    //         'Content-Type': 'application/json'
+    //     }
+    // })
+    //     .then(result => {
+    //         console.log('result')
             socket.emit(SEND_MESSAGE, { room, msg })
-            appendMessge(result)
-        })
-        .catch(e => console.log(e))
+            // appendMessge(result)
+        // })
+        // .catch(e => console.log(e))
 }
 
 //update DOM

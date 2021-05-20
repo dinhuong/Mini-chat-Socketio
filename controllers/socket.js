@@ -10,7 +10,7 @@ exports.userOnline = async (io, socket, userId) => {
     console.log(user.chats)
     if (user.chats) {
         for(var room of user.chats){
-            socket.join(room)
+            socket.join(room.toString())
             console.log('join ', room)
             
         }
