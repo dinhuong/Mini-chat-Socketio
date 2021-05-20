@@ -10,7 +10,7 @@ socket.on('connect', () => {
     console.log(socket.id)
 })
 
-socket.emit(USER_ONLINE, room)
+socket.emit(USER_ONLINE, sendId)
 
 socket.on('disconnect', () => {
     console.log('disconnect')
