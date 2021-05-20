@@ -1,44 +1,39 @@
-const messageInput = document.getElementById('message-input')
+const [USER_ONLINE, RECEIVE_MESSAGE, SEND_MESSAGE] = ['USER_ONLINE', 'RECEIVE_MESSAGE', 'SEND_MESSAGE']
+
+const chatForm = document.getElementById('chat-form')
+const room = document.getElementById('chatId').value
 const sendId = document.getElementById('sendId').value
-const recvId = document.getElementById('recvId').value
-const chatId = document.getElementById('chatId').value
 
 const socket = io()
 
 socket.on('connect', () => {
     console.log(socket.id)
-    socket.emit('USER_ONLINE', chatId)
 })
 
-socket.on('USER_ONLINE', message => {
+socket.emit(USER_ONLINE, room)
+
+socket.on('disconnect', () => {
+    console.log('disconnect')
+})
+
+socket.on(USER_ONLINE, message => {
     console.log(message)
 })
 
-socket.on('server-message', message => {
-    console.log(message)
-})
-
-socket.on('NEW_MASSGE', message => {
-    console.log('received: ' + message.content)
+socket.on(RECEIVE_MESSAGE, message => {
+    console.log('received: ' + message)
     appendMessge(message)
 })
 
-function appendMessge(message) {
-    messageInput.value = ""
-
-    // const messageElement = document.createElement('p')
-    // messageElement.innerText = message.content
-    // messageContainer.append(messageElement)
-
-}
-
+// submit message
 function sendMessage() {
-
     console.log('clicked!')
 
-    const msg = messageInput.value
-
-    fetch('/chat/' + recvId, {
+    const room = document.getElementById('chatId').value
+    const sendId = document.getElementById('sendId').value
+    const msg = document.getElementById('message-input').value
+    
+    fetch('/chat/' + room, {
         method: 'POST',
         body: JSON.stringify({
             creator: sendId,
@@ -50,8 +45,20 @@ function sendMessage() {
     })
         .then(result => {
             console.log('result')
+            socket.emit(SEND_MESSAGE, { room, msg })
+            appendMessge(result)
         })
         .catch(e => console.log(e))
-
-    socket.emit('SEND_MESSAGE', { chatId, msg })
 }
+
+//update DOM
+function appendMessge(msg) {
+    const messageInput = document.getElementById('message-input').value
+    messageInput.value = ""
+
+    // const messageElement = document.createElement('p')
+    // messageElement.innerText = message.content
+    // messageContainer.append(messageElement)
+
+}
+

@@ -5,15 +5,19 @@ exports.getLogin = (req, res, next) => {
 }
 
 exports.postLogin = (req, res, next) => {
-    User.findOne({ username: req.body.username })
-        .then(user => {
-            User.findById(user._id)
-                .then(userModel => {
-                    console.log(userModel)
-                    req.session.user = userModel
-                    res.redirect('/chat')
+    const username = req.body.username
+    User.findOne({ username: username })
+        .then(async user => {
+            if (!user) {
+                const user = await new User({
+                    username: username,
+                    password: 'test',
+                    chats: []
                 })
-                .catch(e => console.log(e))
+                await user.save()
+            }
+            req.session.user = user
+            res.redirect('/chat')
         })
         .catch(e => console.log(e))
 }

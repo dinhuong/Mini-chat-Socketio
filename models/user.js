@@ -12,16 +12,11 @@ const userSchema = new Schema({
         require: true
     },
     chats: [{
-        userId: {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-            required: true
-        },
-        chatId: {
-            type: Schema.Types.ObjectId,
-            ref: 'Chat',
-            required: true
-        }
+
+        type: Schema.Types.ObjectId,
+        ref: 'Chat',
+        required: true
+
     }]
 })
 

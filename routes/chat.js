@@ -9,6 +9,6 @@ router.post('/', chatController.postChats)
 
 router.get('/:userId', chatController.getChatUser)
 
-router.post('/:userId', chatController.postSendMessage)
+router.post('/:chatId', chatController.postSendMessage)
 
 module.exports = router

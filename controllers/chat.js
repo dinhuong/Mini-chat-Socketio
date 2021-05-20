@@ -1,7 +1,7 @@
 const Chat = require('../models/chat')
 const User = require('../models/user')
 const io = require('../socket')
-const Objectid = require('mongoose').Types.ObjectId
+const {RECEIVE_MESSAGE} = require('../socketEvent')
 
 exports.getChats = (req, res, next) => {
     res.render('home', {
@@ -17,84 +17,54 @@ exports.postChats = (req, res, next) => {
         .catch(e => console.log(e))
 }
 
-exports.getChatUser = (req, res, next) => {
+exports.getChatUser = async (req, res, next) => {
     console.log('getChatUser!')
-    User.findById(req.params.userId)
-        .then(async partner => {
-            const chats = req.session.user.chats
-            let messages
-            let chat = chats.find(c => c.userId.toString() === partner._id.toString())
-            if (!chat) {
-                messages = []
-            } else {
-                messages = await Chat.findById(chat.chatId).messages
-                if (!messages) {
-                    messages = []
-                }
-            }
-            console.log("message: ", messages)
-            console.log("room: ", chat.chatId)
-            res.render('chat', {
-                sender: req.session.user,
-                receiver: partner,
-                chatId: chat.chatId
-            })
-        })
-        .catch(e => console.log(e))
+    const send = req.session.user
+    const recv = await User.findById(req.params.userId)
 
+    let commonChats = send.chats.filter(c => recv.chats.includes(c))
+    let commonChat = commonChats[0]
+    console.log(send.username, " , ", recv.username, " commonChats: ", commonChat)
+
+    if (!commonChat) {
+        //create new Chat
+        commonChat = new Chat({ members: [send._id, recv._id], messages: [] })
+        await commonChat.save()
+
+        //update user collection
+
+        let user = await User.findById(send._id)
+        user.chats = [...user.chats, commonChat._id]
+        await user.save()
+        console.log('send:', user)
+      
+        recv.chats = [...recv.chats, commonChat._id]
+        await recv.save()
+        console.log('recv:', recv)
+    } else {
+        commonChat = await Chat.findById(commonChat)
+    }
+
+    res.render('chat', {
+        sender: send,
+        receiver: recv,
+        chatId: commonChat._id.toString()
+    })
 }
 
-exports.postSendMessage = (req, res, next) => {
+exports.postSendMessage = async (req, res, next) => {
     console.log('send Message!')
-    const send = req.session.user
-    User.findById(req.params.userId)
-        .then(async (recv) => {
-            try {
-                let existChat = send.chats.find(c => c.userId.toString() === recv._id.toString())
-                //chat:{userId, chatId}
+    try {
+        const commonChat = await Chat.findById(req.params.chatId)
+        const newMessage = { creator: req.body.creator, content: req.body.content }
 
-                if (!existChat) {
-                    //create new Chat
-                    const messages = new Chat({ messages: [] })
-                    await messages.save()
+        commonChat.messages = [...commonChat.messages, newMessage]
+        await commonChat.save()
 
-                    //update user collection
+        io.getIO().to(commonChat._id).emit(RECEIVE_MESSAGE, newMessage.content)
 
-                    //add to sender chats
-                    existChat = { userId: recv._id, chatId: messages._id }
-                    let updateChats = [...send.chats, existChat]
-
-                    let user = await User.findById(send._id)
-                    user.chats = updateChats
-                    await user.save()
-
-                    //add to receiver chats
-
-                    user = await User.findById(recv._id)
-                    existChat.userId = send._id
-                    console.log(chat.userId)
-                    updateChats = [...recv.chats, existChat]
-                    user.chats = updateChats
-                    await user.save()
-                }
-                //update chat collection
-                Chat.findById(existChat.chatId)
-                    .then(async c => {
-                        //c:{messages:[message:{creator, content}]}
-                        if (!c) { c = { messages: [] } }
-                        const newMessage = { creator: req.body.creator, content: req.body.content }
-                        const updateMessages = [...c.messages, newMessage]
-                        
-                        const chat = await Chat.findById(existChat.chatId)
-                        chat.messages = [...updateMessages]
-                        await chat.save()
-                        io.getIO().to(existChat.chatId).emit("NEW_MASSGE", newMessage)
-                        res.status(200)
-                    })
-                    .catch(e => console.log(e))
-            } catch (error) {
-                console.log(error)
-            }
-        })
-        .catch(e => console.log(e))
+        res.status(200).json(newMessage)
+    } catch (error) {
+        console.log(error)
+    }
 }

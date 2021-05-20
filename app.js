@@ -35,35 +35,28 @@ mongoose
     .connect('mongodb+srv://dinhuong:matkhaumoi@cluster0.umv7k.mongodb.net/messenger?retryWrites=true&w=majority')
     .then(result => {
         console.log('Connected!')
-        User.findOne()
-            .then(user => {
-                if (!user) {
-                    const user = new User({
-                        username: 'test1',
-                        password: 'test',
-                        chats: []
-                    })
-                    user.save()
-                }
-            })
-            .catch(e => console.log(e))
     })
 
 
 const server = app.listen(3000)
 const io = require('./socket').init(server)
 const socketRouter = require('./routes/socket')
-io.on('connection', socket => {
-    console.log('client!')
-    socket.emit('server-message', 'Client connected!')
+const socket = require('./socket')
 
-    socket.on('USER_ONLINE', chatId => {
-        socket.join(chatId)
-        io.to(chatId).emit('a new user join the room')
-    })
+io.on('connect', socket => socketRouter(io, socket))
 
-    socket.on('SEND_MESSAGE', (chatId, msg) => {
-        console.log('message: ', msg)
-        io.to(chatId).emit('NEW_MESSAGE', msg)
-    })
-})
+// io.on('connection', socket => {
+//     console.log('client!')
+//     socket.emit('server-message', 'Client connected!')
+
+//     socket.on('USER_ONLINE', chatId => {
+//         console.log('join ' + chatId)
+//         socket.join(chatId)
+//         io.emit('a new user join the room')
+//     })
+
+//     socket.on('SEND_MESSAGE', (msg) => {
+//         console.log(msg)
+//         io.emit('NEW_MESSAGE', msg)
+//     })
+// })
