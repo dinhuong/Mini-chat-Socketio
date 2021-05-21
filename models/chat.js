@@ -16,9 +16,12 @@ const chatSchema = new Schema({
         },
         content: {
             type: String,
-            require: true
+            required: true
+        },
+        time: {
+            type: String,
+            required: true
         }
-
     }]
 })
 

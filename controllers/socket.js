@@ -1,6 +1,7 @@
 const {USER_ONLINE, RECEIVE_MESSAGE, JOIN_CHAT} = require('../socketEvent')
 const User = require('../models/user')
 const Chat = require('../models/chat')
+const moment = require('moment')
 
 exports.userOnline = async (io, socket, userId) => {
     // socket.join(room)
@@ -23,12 +24,14 @@ exports.sendMessage = async (io, socket, data) => {
     console.log('send Message!')
     try {
         const commonChat = await Chat.findById(data.room)
-        const newMessage = { creator: data.msg.creator, content: data.msg.content }
-
+        const time = await moment().format('LLLL').toString()
+        const newMessage = { creator: data.msg.creator, content: data.msg.content, time: time }
+        const creator = await User.findById(data.msg.creator)
+        const message = { username: creator.username, content: data.msg.content }
         commonChat.messages = [...commonChat.messages, newMessage]
         await commonChat.save()
         console.log('server send :', data.room, data.msg.content)
-        io.to(data.room).emit(RECEIVE_MESSAGE, data.msg.content)
+        io.to(data.room).emit(RECEIVE_MESSAGE, newMessage)
     } catch (error) {
         console.log(error)
     }
