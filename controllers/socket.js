@@ -37,7 +37,7 @@ exports.sendMessage = async (io, socket, data) => {
 exports.joinChat = async(io, socket, data) => {
     //data {sendId, recvId}
     console.log('getChatUser!')
-    
+
     const send = await User.findById(data.sendId)
     const recv = await User.findById(data.recvId)
 
