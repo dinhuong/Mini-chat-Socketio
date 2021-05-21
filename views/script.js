@@ -1,8 +1,8 @@
-const [USER_ONLINE, RECEIVE_MESSAGE, SEND_MESSAGE] = ['USER_ONLINE', 'RECEIVE_MESSAGE', 'SEND_MESSAGE']
+const [USER_ONLINE, RECEIVE_MESSAGE, SEND_MESSAGE, JOIN_CHAT] = ['USER_ONLINE', 'RECEIVE_MESSAGE', 'SEND_MESSAGE', 'JOIN_CHAT']
 
-const chatForm = document.getElementById('chat-form')
-const room = document.getElementById('chatId').value
 const sendId = document.getElementById('sendId').value
+
+var room 
 
 const socket = io()
 
@@ -25,30 +25,40 @@ socket.on(RECEIVE_MESSAGE, message => {
     appendMessge(message)
 })
 
+socket.on(JOIN_CHAT, chatInfo => {
+    room = chatInfo._id
+    console.log('chatInfo: ' + chatInfo)
+})
+
+function chatTest1() {
+    var recvId = document.getElementById('test1').value
+    joinChat(recvId)
+}
+
+function chatTest2() {
+    var recvId = document.getElementById('test2').value
+    joinChat(recvId)
+}
+
+function chatTest3() {
+    var recvId = document.getElementById('test3').value
+    joinChat(recvId)
+}
+
+function joinChat(recvId){
+    socket.emit(JOIN_CHAT, {sendId, recvId})
+}
+
 // submit message
 function sendMessage() {
     console.log('clicked!')
 
-    const room = document.getElementById('chatId').value
-    const sendId = document.getElementById('sendId').value
-    const msg = document.getElementById('message-input').value
-    
-    fetch('/chat/' + room, {
-        method: 'POST',
-        body: JSON.stringify({
-            creator: sendId,
-            content: msg
-        }),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-        .then(result => {
-            console.log('result')
-            socket.emit(SEND_MESSAGE, { room, msg })
-            appendMessge(result)
-        })
-        .catch(e => console.log(e))
+    const creator = document.getElementById('sendId').value
+    const content = document.getElementById('message-input').value
+    const msg = { creator, content }
+
+    socket.emit(SEND_MESSAGE, { room, msg })
+
 }
 
 //update DOM

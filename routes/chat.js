@@ -5,10 +5,10 @@ const router = express.Router()
 
 router.get('/', chatController.getChats)
 
-router.post('/', chatController.postChats)
+// router.post('/', chatController.postChats)
 
-router.get('/:userId', chatController.getChatUser)
+// router.get('/:userId', chatController.getChatUser)
 
-router.post('/:chatId', chatController.postSendMessage)
+// router.post('/:chatId', chatController.postSendMessage)
 
 module.exports = router

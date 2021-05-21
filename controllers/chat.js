@@ -3,9 +3,11 @@ const User = require('../models/user')
 const io = require('../socket')
 const {RECEIVE_MESSAGE} = require('../socketEvent')
 
-exports.getChats = (req, res, next) => {
-    res.render('home', {
-        user: req.session.user
+exports.getChats = async (req, res, next) => {
+    const userArr = await User.find()
+    res.render('chat', {
+        user: req.session.user,
+        userArr: userArr
     })
 }
 
